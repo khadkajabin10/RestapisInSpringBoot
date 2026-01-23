@@ -2,6 +2,8 @@ package com.example.demo.Controller;
 
 import com.example.demo.Dot.AddstudentDto;
 import com.example.demo.Dot.StudentDto;
+import com.example.demo.Entity.Student;
+import com.example.demo.Repository.StudentRepository;
 import com.example.demo.Service.StudentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -17,8 +19,14 @@ import java.util.Map;
 @RestController
 @RequiredArgsConstructor
 public class StudentController {
+    private final StudentRepository studentRepository;
 
    private final StudentService studentService;
+   //this is not done because of privace we are directly connecting to database
+   @GetMapping("/student")
+   public List<Student> allstudent(){
+       return studentRepository.findAll();
+   }
     @GetMapping("/Students")
     public ResponseEntity<List<StudentDto>> allstudentDto(){
         return ResponseEntity.ok(studentService.allstudent());
