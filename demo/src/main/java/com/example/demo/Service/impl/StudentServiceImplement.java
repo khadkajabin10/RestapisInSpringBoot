@@ -8,6 +8,9 @@ import com.example.demo.Service.StudentService;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;
 import org.modelmapper.ModelMapper;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,6 +22,7 @@ import java.util.function.BiConsumer;
 public class StudentServiceImplement implements StudentService {
 private final StudentRepository studentRepository;
 private final ModelMapper modelMapper;
+private final String CACHE_NAME="Student";
     @Override
     public List<StudentDto> allstudent() {
         List<Student> students=studentRepository.findAll();
@@ -29,6 +33,7 @@ private final ModelMapper modelMapper;
     }
 
     @Override
+    @Cacheable(cacheNames=CACHE_NAME,key="#id")
     public StudentDto getStudentById(long id) {
        Student student=studentRepository.findById(id)
                .orElseThrow(()-> new IllegalArgumentException("Student not found with this "+id));
@@ -37,6 +42,7 @@ private final ModelMapper modelMapper;
     }
 
     @Override
+    @CachePut(cacheNames = CACHE_NAME,key = "{#result.id}")
     public StudentDto cretenewstudent(AddstudentDto addstudentDto) {
         Student newstudent=modelMapper.map(addstudentDto,Student.class);
       Student student=  studentRepository.save(newstudent);
@@ -46,6 +52,7 @@ private final ModelMapper modelMapper;
     }
 
     @Override
+    @CacheEvict(cacheNames = CACHE_NAME,key ="#id")
     public Void deletebyid(long id) {
         if(studentRepository.existsById(id)){
             studentRepository.deleteById(id);
@@ -56,6 +63,8 @@ private final ModelMapper modelMapper;
     }
 
     @Override
+    @CachePut(cacheNames = CACHE_NAME,key = "#id")
+//here you need to update all field
     public StudentDto updateallEntity(long id, AddstudentDto addstudentDto) {
         Student student=studentRepository.findById(id)
                 .orElseThrow(()-> new IllegalArgumentException("Student not found with this "+id));
@@ -67,6 +76,8 @@ private final ModelMapper modelMapper;
     }
 
     @Override
+    @CachePut(cacheNames = CACHE_NAME,key = "#id")
+//here you update parital things
     public StudentDto updatePartialEntity(long id, Map<String, Object> updates) {
         Student student=studentRepository.findById(id)
                 .orElseThrow(()-> new IllegalArgumentException("Student not found with this "+id));
